@@ -44,7 +44,7 @@ setup(
             ],
         }
     },
-
+    packages=['cli', 'sss'],
     install_requires=[
         'cffi',
         'click',
