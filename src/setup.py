@@ -27,17 +27,6 @@ except ImportError:
         PLUGANDTRUST_MINOR=0
         PLUGANDTRUST_DEV=1
 
-tools_dir = os.path.abspath(os.path.dirname(__file__) \
-    + os.sep + ".." \
-    + os.sep + ".." \
-    + os.sep + "tools")
-
-if tools_dir == r"C:\tools":
-    data_files = []
-else:
-    data_files = [(tools_dir, ["libsssapisw.dll",
-            "libsssapisw.dylib"]),]
-
 setup(
     name='ssscli',
     version='%d.%d.%d'%(
@@ -72,5 +61,4 @@ setup(
         'Provision/Provision_AZURE.py',
         'Provision/Provision_AWS.py',
         ],
-    data_files=data_files,
 )
