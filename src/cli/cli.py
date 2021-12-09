@@ -68,7 +68,7 @@ def log_traceback(cli_ctx, ex):
     """ Logs the call hierarchy. Called in case of error
     """
     cli_ctx.error(ex)
-    output_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "..", "output")
+    output_dir = os.path.join("/tmp", "se05x")
 
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
