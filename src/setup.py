@@ -40,7 +40,6 @@ setup(
                 'cffi',
                 'click',
                 'cryptography',
-                'func_timeout',
             ],
         }
     },

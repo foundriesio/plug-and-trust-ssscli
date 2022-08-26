@@ -8,7 +8,6 @@
 
 import sys
 import click
-import func_timeout
 import sss.sss_api as apis
 from sss import session
 from sss.genkey import Generate
@@ -16,7 +15,7 @@ from sss.const import ECC_CURVE_TYPE
 from sss.policy import Policy
 
 from .cli import generate, pass_context, session_close, \
-    log_traceback, TIME_OUT, TIME_OUT_RSA
+    log_traceback, TIME_OUT, TIME_OUT_RSA, func_timeout
 
 RSA_N_BITS = ["1024", "2048", "3072", "4096"]
 
@@ -53,14 +52,11 @@ def ecc(cli_ctx, keyid, curvetype, policy_name):
             curvetype not in ["NIST_P256", "NIST_P384"]:
             raise Exception("ERROR! Only NIST_P256 and NIST_P384 are supported for AUTH")
 
-        func_timeout.func_timeout(TIME_OUT, cli_ctx.session.session_open, None)
+        func_timeout(TIME_OUT, cli_ctx.session.session_open, None)
 
         gen_obj = Generate(cli_ctx.session)
-        status = func_timeout.func_timeout(TIME_OUT, gen_obj.gen_ecc_pair,
-                                           (keyid, ECC_CURVE_TYPE[curvetype], policy))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
+        status = func_timeout(TIME_OUT, gen_obj.gen_ecc_pair,
+                              (keyid, ECC_CURVE_TYPE[curvetype], policy))
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -100,13 +96,10 @@ def rsa(cli_ctx, keyid, bits, policy_name):
         if cli_ctx.session.is_auth:
             raise Exception("ERROR! RSA is not supported for AUTH")
 
-        func_timeout.func_timeout(TIME_OUT, cli_ctx.session.session_open, None)
+        func_timeout(TIME_OUT, cli_ctx.session.session_open, None)
         gen_obj = Generate(cli_ctx.session)
-        status = func_timeout.func_timeout(TIME_OUT_RSA, gen_obj.gen_rsa_pair,
+        status = func_timeout(TIME_OUT_RSA, gen_obj.gen_rsa_pair,
                                            (keyid, int(bits), policy))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -154,14 +147,11 @@ def pub(cli_ctx, keyid, curvetype, filename, format, policy_name):  # pylint: di
         if cli_ctx.session.is_auth and \
             curvetype not in ["NIST_P256", "NIST_P384"]:
             raise Exception("ERROR! Only NIST_P256 and NIST_P384 are supported for AUTH")
-        func_timeout.func_timeout(TIME_OUT, cli_ctx.session.session_open, None)
+        func_timeout(TIME_OUT, cli_ctx.session.session_open, None)
         gen_obj = Generate(cli_ctx.session)
-        status = func_timeout.func_timeout(TIME_OUT, gen_obj.gen_ecc_public,
+        status = func_timeout(TIME_OUT, gen_obj.gen_ecc_public,
                                            (keyid, ECC_CURVE_TYPE[curvetype],
                                             filename, policy, format))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail

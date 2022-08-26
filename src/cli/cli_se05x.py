@@ -7,12 +7,11 @@
 """License text"""
 
 import sys
-import func_timeout
 from sss.read_id_list import ReadIDList
 from sss.se05x import Se05x
 import sss.sss_api as apis
 from .cli import se05x, pass_context, session_open, session_close, \
-    log_traceback, TIME_OUT
+    log_traceback, TIME_OUT, func_timeout
 
 
 @se05x.command('reset', short_help='Reset SE05X')
@@ -34,11 +33,8 @@ def reset(cli_ctx):
     try:
         session_open(cli_ctx)
         se05x_obj = Se05x(cli_ctx.session)
-        func_timeout.func_timeout(TIME_OUT, se05x_obj.debug_reset, None)
+        func_timeout(TIME_OUT, se05x_obj.debug_reset, None)
         status = apis.kStatus_SSS_Success
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -57,12 +53,9 @@ def uid(cli_ctx):
     try:
         session_open(cli_ctx)
         se05x_obj = Se05x(cli_ctx.session)
-        unique_id = func_timeout.func_timeout(TIME_OUT, se05x_obj.get_unique_id, None)
+        unique_id = func_timeout(TIME_OUT, se05x_obj.get_unique_id, None)
         cli_ctx.log("Unique ID: %s" % (unique_id,))
         status = apis.kStatus_SSS_Success
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -82,12 +75,9 @@ def certuid(cli_ctx):
     try:
         session_open(cli_ctx)
         se05x_obj = Se05x(cli_ctx.session)
-        cert_uid = func_timeout.func_timeout(TIME_OUT, se05x_obj.get_cert_unique_id, None)
+        cert_uid = func_timeout(TIME_OUT, se05x_obj.get_cert_unique_id, None)
         cli_ctx.log("Cert UID: %s" % (cert_uid,))
         status = apis.kStatus_SSS_Success
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -106,11 +96,8 @@ def readidlist(cli_ctx):
     try:
         session_open(cli_ctx)
         read_id_list_obj = ReadIDList(cli_ctx.session)
-        func_timeout.func_timeout(TIME_OUT, read_id_list_obj.do_read_id_list, None)
+        func_timeout(TIME_OUT, read_id_list_obj.do_read_id_list, None)
         status = apis.kStatus_SSS_Success
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -129,12 +116,9 @@ def getrng(cli_ctx):
     try:
         session_open(cli_ctx)
         se05x_obj = Se05x(cli_ctx.session)
-        rngdata = func_timeout.func_timeout(TIME_OUT, se05x_obj.get_random_number, None)
+        rngdata = func_timeout(TIME_OUT, se05x_obj.get_random_number, None)
         cli_ctx.log("Random number: %s" % (rngdata,))
         status = apis.kStatus_SSS_Success
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
