@@ -8,11 +8,10 @@
 
 import sys
 import click
-import func_timeout
 from sss.refkey import RefPem
 import sss.sss_api as apis
 from .cli import refpem, pass_context, session_open, session_close, \
-    log_traceback, TIME_OUT, TIME_OUT_RSA
+    log_traceback, TIME_OUT, TIME_OUT_RSA, func_timeout
 
 
 @refpem.group()
@@ -59,11 +58,8 @@ def pair(cli_ctx, keyid, filename, format, password, cert):  # pylint: disable=f
         try:
             session_open(cli_ctx)
             refpem_obj = RefPem(cli_ctx.session)
-            status = func_timeout.func_timeout(TIME_OUT, refpem_obj.do_ecc_refpem_pair,
-                                               (keyid, filename, format, password, cert))
-        except func_timeout.FunctionTimedOut as timeout_exc:
-            log_traceback(cli_ctx, timeout_exc.getMsg())
-            status = apis.kStatus_SSS_Fail
+            status = func_timeout(TIME_OUT, refpem_obj.do_ecc_refpem_pair,
+                                  (keyid, filename, format, password, cert))
         except Exception as exc:  # pylint: disable=broad-except
             log_traceback(cli_ctx, exc)
             status = apis.kStatus_SSS_Fail
@@ -113,11 +109,8 @@ def pub(cli_ctx, keyid, filename, format, password, cert):  # pylint: disable=re
         try:
             session_open(cli_ctx)
             refpem_obj = RefPem(cli_ctx.session)
-            status = func_timeout.func_timeout(TIME_OUT, refpem_obj.do_ecc_refpem_pub,
-                                               (keyid, filename, format, password, cert))
-        except func_timeout.FunctionTimedOut as timeout_exc:
-            log_traceback(cli_ctx, timeout_exc.getMsg())
-            status = apis.kStatus_SSS_Fail
+            status = func_timeout(TIME_OUT, refpem_obj.do_ecc_refpem_pub,
+                                  (keyid, filename, format, password, cert))
         except Exception as exc:  # pylint: disable=broad-except
             log_traceback(cli_ctx, exc)
             status = apis.kStatus_SSS_Fail
@@ -165,11 +158,8 @@ def pair(cli_ctx, keyid, filename, format, password, cert):  # pylint: disable=f
         try:
             session_open(cli_ctx)
             refpem_obj = RefPem(cli_ctx.session)
-            status = func_timeout.func_timeout(TIME_OUT_RSA, refpem_obj.do_rsa_refpem_pair,
-                                               (keyid, filename, format, password, cert))
-        except func_timeout.FunctionTimedOut as timeout_exc:
-            log_traceback(cli_ctx, timeout_exc.getMsg())
-            status = apis.kStatus_SSS_Fail
+            status = func_timeout(TIME_OUT_RSA, refpem_obj.do_rsa_refpem_pair,
+                                  (keyid, filename, format, password, cert))
         except Exception as exc:  # pylint: disable=broad-except
             log_traceback(cli_ctx, exc)
             status = apis.kStatus_SSS_Fail

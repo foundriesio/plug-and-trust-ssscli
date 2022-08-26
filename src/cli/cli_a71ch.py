@@ -7,11 +7,10 @@
 """License text"""
 
 import sys
-import func_timeout
 from sss.a71ch import A71CH
 import sss.sss_api as apis
 from .cli import a71ch, pass_context, session_open, session_close, \
-    log_traceback, TIME_OUT
+    log_traceback, TIME_OUT, func_timeout
 
 
 @a71ch.command('reset', short_help='Debug Reset A71CH')
@@ -21,11 +20,8 @@ def reset(cli_ctx):
     try:
         session_open(cli_ctx)
         a71ch_obj = A71CH(cli_ctx.session)
-        func_timeout.func_timeout(TIME_OUT, a71ch_obj.debug_reset, None)
+        func_timeout(TIME_OUT, a71ch_obj.debug_reset, None)
         status = apis.kStatus_SSS_Success
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -44,12 +40,9 @@ def uid(cli_ctx):
     try:
         session_open(cli_ctx)
         a71ch_obj = A71CH(cli_ctx.session)
-        unique_id = func_timeout.func_timeout(TIME_OUT, a71ch_obj.get_unique_id, None)
+        unique_id = func_timeout(TIME_OUT, a71ch_obj.get_unique_id, None)
         cli_ctx.log("Unique ID: %s" % (unique_id,))
         status = apis.kStatus_SSS_Success
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail

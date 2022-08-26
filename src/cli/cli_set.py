@@ -8,11 +8,10 @@
 
 import sys
 import click
-import func_timeout
 from sss.setkey import Set
 from sss.policy import Policy
 import sss.sss_api as apis
-from .cli import set, pass_context, session_open, session_close, log_traceback, TIME_OUT  # pylint: disable=redefined-builtin
+from .cli import set, pass_context, session_open, session_close, log_traceback, TIME_OUT, func_timeout  # pylint: disable=redefined-builtin
 
 
 @set.group()
@@ -45,10 +44,7 @@ def hmac(cli_ctx, keyid, key):
         cli_ctx.log("Injecting HMAC Key at KeyID = 0x%08X" % keyid)
         session_open(cli_ctx)
         set_object = Set(cli_ctx.session)
-        status = func_timeout.func_timeout(TIME_OUT, set_object.do_set_hmac_key, (keyid, key, None))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
+        status = func_timeout(TIME_OUT, set_object.do_set_hmac_key, (keyid, key, None))
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -85,11 +81,8 @@ def aes(cli_ctx, keyid, key, policy_name):
         cli_ctx.log("Injecting AES Key at KeyID = 0x%08X" % keyid)
         session_open(cli_ctx)
         set_object = Set(cli_ctx.session)
-        status = func_timeout.func_timeout(TIME_OUT, set_object.do_set_sym_key,
+        status = func_timeout(TIME_OUT, set_object.do_set_sym_key,
                                            (keyid, key, policy))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -130,11 +123,8 @@ def cert(cli_ctx, keyid, key, format, policy_name):
         cli_ctx.log("Injecting Certificate at KeyID = 0x%08X" % keyid)
         session_open(cli_ctx)
         set_object = Set(cli_ctx.session)
-        status = func_timeout.func_timeout(TIME_OUT, set_object.do_set_cert,
-                                           (keyid, key, policy, format))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
+        status = func_timeout(TIME_OUT, set_object.do_set_cert,
+                              (keyid, key, policy, format))
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -172,11 +162,8 @@ def bin(cli_ctx, keyid, data, policy_name):
         cli_ctx.log("Injecting Binary at KeyID = 0x%08X" % keyid)
         session_open(cli_ctx)
         set_object = Set(cli_ctx.session)
-        status = func_timeout.func_timeout(TIME_OUT, set_object.do_set_bin,
-                                           (keyid, data, policy))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
+        status = func_timeout(TIME_OUT, set_object.do_set_bin,
+                              (keyid, data, policy))
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -218,11 +205,8 @@ def pub(cli_ctx, keyid, key, format, policy_name):
         cli_ctx.log("Injecting ECC Public Key at KeyID = 0x%08X" % (keyid,))
         session_open(cli_ctx)
         set_object = Set(cli_ctx.session)
-        status = func_timeout.func_timeout(TIME_OUT, set_object.do_set_ecc_pub_key,
-                                           (keyid, key, policy, format))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
+        status = func_timeout(TIME_OUT, set_object.do_set_ecc_pub_key,
+                              (keyid, key, policy, format))
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -264,11 +248,8 @@ def pair(cli_ctx, keyid, key, format, policy_name):
         cli_ctx.log("Injecting ECC Key Pair at KeyID = 0x%08X" % (keyid,))
         session_open(cli_ctx)
         set_object = Set(cli_ctx.session)
-        status = func_timeout.func_timeout(TIME_OUT, set_object.do_set_ecc_key_pair,
-                                           (keyid, key, policy, format))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
+        status = func_timeout(TIME_OUT, set_object.do_set_ecc_key_pair,
+                              (keyid, key, policy, format))
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -310,11 +291,8 @@ def pub(cli_ctx, keyid, key, format, policy_name):
         cli_ctx.log("Injecting RSA Public Key at KeyID = 0x%08X" % keyid)
         session_open(cli_ctx)
         set_object = Set(cli_ctx.session)
-        status = func_timeout.func_timeout(TIME_OUT, set_object.do_set_rsa_pub_key,
-                                           (keyid, key, policy, format))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
+        status = func_timeout(TIME_OUT, set_object.do_set_rsa_pub_key,
+                              (keyid, key, policy, format))
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -356,11 +334,8 @@ def pair(cli_ctx, keyid, key, format, policy_name):
         cli_ctx.log("Injecting RSA Key Pair at KeyID = 0x%08X" % keyid)
         session_open(cli_ctx)
         set_object = Set(cli_ctx.session)
-        status = func_timeout.func_timeout(TIME_OUT, set_object.do_set_rsa_key_pair,
-                                           (keyid, key, policy, format))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
+        status = func_timeout(TIME_OUT, set_object.do_set_rsa_key_pair,
+                              (keyid, key, policy, format))
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail

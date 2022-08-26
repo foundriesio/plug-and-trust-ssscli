@@ -8,11 +8,10 @@
 
 import sys
 import click
-import func_timeout
 from sss.getkey import Get
 import sss.sss_api as apis
 from .cli import get, pass_context, session_open, session_close, \
-    log_traceback, TIME_OUT
+    log_traceback, TIME_OUT, func_timeout
 
 
 @get.group()
@@ -48,10 +47,7 @@ def aes(cli_ctx, keyid, filename, format):  # pylint: disable=redefined-builtin
         session_open(cli_ctx)
         cli_ctx.log("Getting Symmetric Key from KeyID = 0x%08X" % keyid)
         get_object = Get(cli_ctx.session)
-        status = func_timeout.func_timeout(TIME_OUT, get_object.get_key, (keyid, filename, format))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
+        status = func_timeout(TIME_OUT, get_object.get_key, (keyid, filename, format))
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -84,10 +80,7 @@ def cert(cli_ctx, keyid, filename, format):  # pylint: disable=redefined-builtin
         cli_ctx.log("Getting Certificate from KeyID = 0x%08X" % keyid)
         session_open(cli_ctx)
         get_object = Get(cli_ctx.session)
-        status = func_timeout.func_timeout(TIME_OUT, get_object.get_key, (keyid, filename, format))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
+        status = func_timeout(TIME_OUT, get_object.get_key, (keyid, filename, format))
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -118,10 +111,7 @@ def bin(cli_ctx, keyid, filename):  # pylint: disable=redefined-builtin
         session_open(cli_ctx)
         get_object = Get(cli_ctx.session)
         format = "HEX"
-        status = func_timeout.func_timeout(TIME_OUT, get_object.get_key, (keyid, filename, format))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
+        status = func_timeout(TIME_OUT, get_object.get_key, (keyid, filename, format))
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -154,10 +144,7 @@ def pub(cli_ctx, keyid, filename, format):  # pylint: disable=function-redefined
         cli_ctx.log("Getting ECC Public Key from KeyID = 0x%08X" % keyid)
         session_open(cli_ctx)
         get_object = Get(cli_ctx.session)
-        status = func_timeout.func_timeout(TIME_OUT, get_object.get_key, (keyid, filename, format))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
+        status = func_timeout(TIME_OUT, get_object.get_key, (keyid, filename, format))
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -190,10 +177,7 @@ def pair(cli_ctx, keyid, filename, format):  # pylint: disable=function-redefine
         cli_ctx.log("Getting ECC Public Key from KeyID = 0x%08X" % keyid)
         session_open(cli_ctx)
         get_object = Get(cli_ctx.session)
-        status = func_timeout.func_timeout(TIME_OUT, get_object.get_key, (keyid, filename, format))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
+        status = func_timeout(TIME_OUT, get_object.get_key, (keyid, filename, format))
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -226,10 +210,7 @@ def pub(cli_ctx, keyid, filename, format):  # pylint: disable=function-redefined
         cli_ctx.log("Getting RSA Public Key from KeyID = 0x%08X" % keyid)
         session_open(cli_ctx)
         get_object = Get(cli_ctx.session)
-        status = func_timeout.func_timeout(TIME_OUT, get_object.get_key, (keyid, filename, format))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
+        status = func_timeout(TIME_OUT, get_object.get_key, (keyid, filename, format))
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -262,10 +243,7 @@ def pair(cli_ctx, keyid, filename, format):  # pylint: disable=function-redefine
         cli_ctx.log("Getting RSA Public Key from KeyID = 0x%08X" % keyid)
         session_open(cli_ctx)
         get_object = Get(cli_ctx.session)
-        status = func_timeout.func_timeout(TIME_OUT, get_object.get_key, (keyid, filename, format))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
+        status = func_timeout(TIME_OUT, get_object.get_key, (keyid, filename, format))
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail

@@ -10,8 +10,8 @@ import os
 import sys
 import traceback
 import click
-import func_timeout
 import logging
+import threading
 
 if '-v' in sys.argv or '--verbose' in sys.argv:
     logging.basicConfig(level=logging.DEBUG)
@@ -83,12 +83,42 @@ def log_traceback(cli_ctx, ex):
     traceback.print_exc(None, err_write)
     err_write.close()
 
+class FunctionTimedOut(Exception):
+    pass
+
+
+def func_timeout(timeout, func, args=(), kwargs=None):
+    """Simple implementation of func_timeout without stoppable threads"""
+    ret = []
+    exception = []
+    if not kwargs:
+        kwargs = {}
+    if not args:
+        args = ()
+
+    def run_thread(r_args, r_kwargs):
+        try:
+            ret.append(func(*r_args, **r_kwargs))
+        except Exception as e:
+            exception.append(e)
+
+    p = threading.Thread(target=run_thread, args=(args, kwargs), daemon=True)
+    p.start()
+    p.join(timeout)
+    if p.is_alive():
+        raise FunctionTimedOut
+
+    if exception:
+        raise exception[0] from None
+    if ret:
+        return ret[0]
+
 
 def session_open(cli_ctx):
     """ Session open
     """
     cli_ctx.session = session.Session()
-    func_timeout.func_timeout(TIME_OUT, cli_ctx.session.session_open, None)
+    func_timeout(TIME_OUT, cli_ctx.session.session_open, None)
 
 
 def session_close(cli_ctx):
@@ -98,11 +128,8 @@ def session_close(cli_ctx):
     :return: status
     """
     try:
-        func_timeout.func_timeout(TIME_OUT, cli_ctx.session.session_close, None)
+        func_timeout(TIME_OUT, cli_ctx.session.session_close, None)
         status = apis.kStatus_SSS_Success
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -147,10 +174,7 @@ def erase(cli_ctx, keyid):
         cli_ctx.log("Erasing Key entry from KeyID = 0x%08x" % keyid)
         session_open(cli_ctx)
         erase_obj = Erase(cli_ctx.session)
-        status = func_timeout.func_timeout(TIME_OUT, erase_obj.erase_key, (keyid, ))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
+        status = func_timeout(TIME_OUT, erase_obj.erase_key, (keyid, ))
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -281,12 +305,9 @@ def sign(cli_ctx, keyid, input_file, signature_file, informat, outformat, hashal
         keyid = int(keyid, 16)
         session_open(cli_ctx)
         sign_obj = Sign(cli_ctx.session)
-        status = func_timeout.func_timeout(TIME_OUT, sign_obj.do_signature,
-                                           (keyid, input_file, signature_file,
-                                            informat, outformat, hashalgo))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
+        status = func_timeout(TIME_OUT, sign_obj.do_signature,
+                              (keyid, input_file, signature_file,
+                              informat, outformat, hashalgo))
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -331,11 +352,8 @@ def verify(cli_ctx, keyid, input_file, signature_file, format, hashalgo):  # pyl
         keyid = int(keyid, 16)
         session_open(cli_ctx)
         verify_obj = Verify(cli_ctx.session)
-        status = func_timeout.func_timeout(TIME_OUT, verify_obj.do_verification,
+        status = func_timeout(TIME_OUT, verify_obj.do_verification,
                                            (keyid, input_file, signature_file, format, hashalgo))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -371,11 +389,8 @@ def encrypt(cli_ctx, keyid, input_data, filename, algo):
         crypt_obj = Crypt(cli_ctx.session)
         if algo != '':
             crypt_obj.algorithm = CRYPT_ALGO[algo]
-        status = func_timeout.func_timeout(TIME_OUT, crypt_obj.do_encryption,
-                                           (keyid, input_data, filename))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
+        status = func_timeout(TIME_OUT, crypt_obj.do_encryption,
+                              (keyid, input_data, filename))
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
@@ -411,11 +426,8 @@ def decrypt(cli_ctx, keyid, encrypted_data, filename, algo):
         crypt_obj = Crypt(cli_ctx.session)
         if algo != '':
             crypt_obj.algorithm = CRYPT_ALGO[algo]
-        status = func_timeout.func_timeout(TIME_OUT, crypt_obj.do_decryption,
-                                           (keyid, encrypted_data, filename))
-    except func_timeout.FunctionTimedOut as timeout_exc:
-        log_traceback(cli_ctx, timeout_exc.getMsg())
-        status = apis.kStatus_SSS_Fail
+        status = func_timeout(TIME_OUT, crypt_obj.do_decryption,
+                              (keyid, encrypted_data, filename))
     except Exception as exc:  # pylint: disable=broad-except
         log_traceback(cli_ctx, exc)
         status = apis.kStatus_SSS_Fail
